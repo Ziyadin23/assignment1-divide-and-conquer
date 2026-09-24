@@ -1,0 +1,56 @@
+Divide-and-Conquer Assignment 1
+MergeSort: [1, 2, 2, 5, 7, 9]
+QuickSort: [1, 2, 2, 5, 7, 9]
+3rd smallest: 2
+Closest distance: 1.4142135623730951
+
+Algorithm             Input type       n       Average ms  Average depth
+MergeSort             random              200        0.079            5.0
+MergeSort             random             2000        0.335            8.0
+MergeSort             random            20000        5.091           12.0
+MergeSort             sorted              200        0.008            5.0
+MergeSort             sorted             2000        0.023            8.0
+MergeSort             sorted            20000        0.243           12.0
+MergeSort             reverse             200        0.018            5.0
+MergeSort             reverse            2000        0.348            8.0
+MergeSort             reverse           20000        3.686           12.0
+MergeSort             duplicate-heavy     200        0.023            5.0
+MergeSort             duplicate-heavy    2000        0.367            8.0
+MergeSort             duplicate-heavy   20000        4.280           12.0
+QuickSort             random              200        0.043            4.4
+QuickSort             random             2000        0.424            7.0
+QuickSort             random            20000        5.746            8.8
+QuickSort             sorted              200        0.027            4.6
+QuickSort             sorted             2000        0.419            7.0
+QuickSort             sorted            20000        2.506            9.0
+QuickSort             reverse             200        0.014            4.0
+QuickSort             reverse            2000        0.176            7.0
+QuickSort             reverse           20000        1.860            9.2
+QuickSort             duplicate-heavy     200        0.008            2.2
+QuickSort             duplicate-heavy    2000        0.063            2.0
+QuickSort             duplicate-heavy   20000        0.609            2.0
+DeterministicSelect   random              200        0.107            6.2
+DeterministicSelect   random             2000        0.325           10.0
+DeterministicSelect   random            20000        2.514           13.0
+DeterministicSelect   sorted              200        0.011            6.8
+DeterministicSelect   sorted             2000        0.110            9.8
+DeterministicSelect   sorted            20000        1.105           13.0
+DeterministicSelect   reverse             200        0.013            6.6
+DeterministicSelect   reverse            2000        0.131            9.8
+DeterministicSelect   reverse           20000        1.361           13.2
+DeterministicSelect   duplicate-heavy     200        0.011            4.4
+DeterministicSelect   duplicate-heavy    2000        0.084            5.4
+DeterministicSelect   duplicate-heavy   20000        0.933            7.6
+ClosestPair           random              200        0.508            9.0
+ClosestPair           random             2000        4.581           12.0
+ClosestPair           random            20000       19.610           16.0
+ClosestPair           sorted              200        0.056            9.0
+ClosestPair           sorted             2000        0.636           12.0
+ClosestPair           sorted            20000       13.228           16.0
+ClosestPair           reverse             200        0.053            9.0
+ClosestPair           reverse            2000        0.634           12.0
+ClosestPair           reverse           20000        9.673           16.0
+ClosestPair           duplicate-heavy     200        0.137            9.0
+ClosestPair           duplicate-heavy    2000        0.826           12.0
+ClosestPair           duplicate-heavy   20000       11.199           16.0
+Saved measurements to results/results.csv
