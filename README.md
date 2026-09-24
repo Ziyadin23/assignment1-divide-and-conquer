@@ -1,10 +1,10 @@
-# Assignment 1: Divide-and-Conquer Algorithm Analysis
+# Assignment 1: Divide and Conquer
 
-This project implements four algorithms in Java: MergeSort, randomized QuickSort, deterministic selection, and closest pair of points. I compared their running times, recursion depths, and operation counts on several input sizes and shapes. The full measurements are in [results/results.csv](results/results.csv).
+I implemented MergeSort, QuickSort, Deterministic Select, and Closest Pair in Java, then measured time, recursion depth, and operations.
 
-## How to run
+## Run
 
-Java 17 or newer and Maven are needed.
+Use Java 17+ and Maven:
 
 ```bash
 mvn test
@@ -12,97 +12,72 @@ mvn package
 java -jar target/assignment1-divide-and-conquer-1.0.0.jar
 ```
 
-The tests check sorting against `Arrays.sort`, selection against a sorted copy in 150 random cases, and closest pair against brute force on small sets (including one set of 2,000 points). They also check empty inputs, single items, duplicates, and a large closest-pair input. Running the jar prints a short example and writes `results/results.csv`.
+The program prints results and saves [results/results.csv](results/results.csv). Tests use `Arrays.sort` for sorting and 150 selection cases, and brute force for Closest Pair (up to 2,000 points). They cover empty, single-item, and duplicate inputs.
 
-## Algorithm analysis
+## Algorithms
 
-**MergeSort.** I split the array in half, sort both halves, and merge them with one reusable temporary array. For parts of at most 16 items, I use insertion sort. An already ordered pair of halves does not need merging. The usual recurrence is `T(n) = 2T(n/2) + Θ(n)`, so the Master Theorem gives `Θ(n log n)` time. The temporary array takes `Θ(n)` space and the call stack takes `Θ(log n)`. On a fully sorted array, skipped merges make this implementation closer to linear time.
+**MergeSort:** Sort two halves, then merge with a reusable buffer. Use insertion sort for at most 16 items and skip unnecessary merges. `T(n) = 2T(n/2) + Θ(n)` gives `Θ(n log n)` time by the Master Theorem. Space: `Θ(n)` buffer and `Θ(log n)` stack.
 
-**QuickSort.** I choose a random pivot and use an in-place three-way partition: smaller, equal, and larger values. I call the function on the smaller side and handle the larger side in a loop. With reasonably balanced splits, `T(n) ≈ 2T(n/2) + Θ(n)`, giving expected `Θ(n log n)` time. A series of very poor pivots can still give `T(n) = T(n-1) + Θ(n) = Θ(n²)`. The smaller-first method keeps the call stack at `O(log n)` even in that case; partitioning itself uses constant extra space.
+**QuickSort:** Pick a random pivot; partition in place into smaller, equal, and larger values. Recurse on the smaller part and loop over the larger. Balanced splits give `T(n) ≈ 2T(n/2) + Θ(n) = Θ(n log n)` by the Master Theorem. Bad pivots give `T(n) = T(n-1) + Θ(n) = Θ(n²)`. Space: `O(log n)` stack, `O(1)` partition.
 
-**Deterministic Select.** This finds the item at a zero-based position `k` without sorting the whole array. It sorts groups of five, selects the median of their medians as the pivot, partitions in place into three sections, and continues only in the section containing `k`. Its worst-case recurrence is `T(n) ≤ T(n/5) + T(7n/10 + O(1)) + Θ(n)`. Since the two recursive fractions add to less than one, the linear partition work dominates, giving `Θ(n)` worst-case time (Akra–Bazzi intuition). It uses `O(log n)` stack space and constant extra array space.
+**Deterministic Select:** Sort groups of five, pick their median of medians, and partition in place. Search only the part containing `k`. `T(n) ≤ T(n/5) + T(7n/10) + Θ(n)` is `Θ(n)` in the worst case: the fractions total less than 1 (Akra-Bazzi idea). Space: `O(log n)` stack, `O(1)` extra array space.
 
-**Closest Pair.** I first sort the points by x-coordinate. The recursive part solves the left and right halves, merges their y-order, and checks nearby points in a strip around the middle. Each strip point needs at most the next seven points checked. The recurrence for the recursive part is `T(n) = 2T(n/2) + Θ(n)`, which is `Θ(n log n)` by the Master Theorem. The first x-sort is also `Θ(n log n)`, so the full algorithm stays `Θ(n log n)`. Its arrays use `Θ(n)` space and recursion uses `Θ(log n)` space.
+**Closest Pair:** Sort by x, solve both halves, merge y-order, and check at most seven neighbors per point in the middle strip. `T(n) = 2T(n/2) + Θ(n)` gives `Θ(n log n)` by the Master Theorem; x-sorting has the same bound. Space: `Θ(n)` arrays, `Θ(log n)` stack.
 
 ## Experiments
 
-I used sizes 200, 2,000, and 20,000, with random, sorted, reverse-sorted, and duplicate-heavy inputs. Arrays use only ten different values in the duplicate-heavy case. Duplicate-heavy point sets use a 20 by 20 coordinate grid. For selection, `k = n/2`. The program does one warm-up run per algorithm, then records five trials for each combination. Input generation happens before timing; `System.nanoTime()` measures the algorithm call. The CSV also contains comparisons, array moves, and recursive calls. For closest pair, the comparison count means distance calculations, while its maximum depth includes both the initial x-sort and the closest-pair recursion.
+I tested 200, 2,000, and 20,000 items: random, sorted, reverse-sorted, and duplicate-heavy. Selection uses `k = n/2`. Duplicate-heavy arrays have 10 values; points use a 20 × 20 grid. After warm-up, I ran five trials per case. `System.nanoTime()` measures only the algorithm. The CSV includes comparisons, moves, and calls. For Closest Pair, comparisons are distance checks and depth includes x-sorting.
 
-These measurements were made with OpenJDK 25.0.4.1 on an AMD Ryzen 7 5800H computer with 15 GiB RAM. Times below are five-trial averages in milliseconds. Small timings can change noticeably between runs because of JVM compilation and other activity on the computer.
-
-### Average running time (ms)
+Each cell is **average milliseconds / average maximum recursion depth** over five trials. Measured with OpenJDK 25.0.4.1 on Ryzen 7 5800H.
 
 | Algorithm | Input | 200 | 2,000 | 20,000 |
 |---|---|---:|---:|---:|
-| MergeSort | random | 0.0786 | 0.3349 | 5.0908 |
-| MergeSort | sorted | 0.0080 | 0.0233 | 0.2432 |
-| MergeSort | reverse | 0.0184 | 0.3477 | 3.6857 |
-| MergeSort | duplicate-heavy | 0.0229 | 0.3668 | 4.2803 |
-| QuickSort | random | 0.0431 | 0.4243 | 5.7456 |
-| QuickSort | sorted | 0.0271 | 0.4187 | 2.5056 |
-| QuickSort | reverse | 0.0136 | 0.1761 | 1.8595 |
-| QuickSort | duplicate-heavy | 0.0076 | 0.0626 | 0.6094 |
-| Deterministic Select | random | 0.1068 | 0.3252 | 2.5143 |
-| Deterministic Select | sorted | 0.0113 | 0.1098 | 1.1053 |
-| Deterministic Select | reverse | 0.0127 | 0.1310 | 1.3612 |
-| Deterministic Select | duplicate-heavy | 0.0111 | 0.0838 | 0.9332 |
-| Closest Pair | random | 0.5078 | 4.5808 | 19.6097 |
-| Closest Pair | sorted | 0.0556 | 0.6361 | 13.2281 |
-| Closest Pair | reverse | 0.0534 | 0.6337 | 9.6725 |
-| Closest Pair | duplicate-heavy | 0.1365 | 0.8263 | 11.1990 |
+| MergeSort | random | 0.0786 / 5.0 | 0.3349 / 8.0 | 5.0908 / 12.0 |
+| MergeSort | sorted | 0.0080 / 5.0 | 0.0233 / 8.0 | 0.2432 / 12.0 |
+| MergeSort | reverse | 0.0184 / 5.0 | 0.3477 / 8.0 | 3.6857 / 12.0 |
+| MergeSort | duplicate-heavy | 0.0229 / 5.0 | 0.3668 / 8.0 | 4.2803 / 12.0 |
+| QuickSort | random | 0.0431 / 4.4 | 0.4243 / 7.0 | 5.7456 / 8.8 |
+| QuickSort | sorted | 0.0271 / 4.6 | 0.4187 / 7.0 | 2.5056 / 9.0 |
+| QuickSort | reverse | 0.0136 / 4.0 | 0.1761 / 7.0 | 1.8595 / 9.2 |
+| QuickSort | duplicate-heavy | 0.0076 / 2.2 | 0.0626 / 2.0 | 0.6094 / 2.0 |
+| Deterministic Select | random | 0.1068 / 6.2 | 0.3252 / 10.0 | 2.5143 / 13.0 |
+| Deterministic Select | sorted | 0.0113 / 6.8 | 0.1098 / 9.8 | 1.1053 / 13.0 |
+| Deterministic Select | reverse | 0.0127 / 6.6 | 0.1310 / 9.8 | 1.3612 / 13.2 |
+| Deterministic Select | duplicate-heavy | 0.0111 / 4.4 | 0.0838 / 5.4 | 0.9332 / 7.6 |
+| Closest Pair | random | 0.5078 / 9.0 | 4.5808 / 12.0 | 19.6097 / 16.0 |
+| Closest Pair | sorted | 0.0556 / 9.0 | 0.6361 / 12.0 | 13.2281 / 16.0 |
+| Closest Pair | reverse | 0.0534 / 9.0 | 0.6337 / 12.0 | 9.6725 / 16.0 |
+| Closest Pair | duplicate-heavy | 0.1365 / 9.0 | 0.8263 / 12.0 | 11.1990 / 16.0 |
 
-### Average maximum recursion depth
+![Time vs input size](docs/plots/time_vs_n.png)
 
-Depth is the deepest active call, not the total number of calls. Decimal values mean the maximum varied across the five trials.
-
-| Algorithm | Input | 200 | 2,000 | 20,000 |
-|---|---|---:|---:|---:|
-| MergeSort | random | 5.0 | 8.0 | 12.0 |
-| MergeSort | sorted | 5.0 | 8.0 | 12.0 |
-| MergeSort | reverse | 5.0 | 8.0 | 12.0 |
-| MergeSort | duplicate-heavy | 5.0 | 8.0 | 12.0 |
-| QuickSort | random | 4.4 | 7.0 | 8.8 |
-| QuickSort | sorted | 4.6 | 7.0 | 9.0 |
-| QuickSort | reverse | 4.0 | 7.0 | 9.2 |
-| QuickSort | duplicate-heavy | 2.2 | 2.0 | 2.0 |
-| Deterministic Select | random | 6.2 | 10.0 | 13.0 |
-| Deterministic Select | sorted | 6.8 | 9.8 | 13.0 |
-| Deterministic Select | reverse | 6.6 | 9.8 | 13.2 |
-| Deterministic Select | duplicate-heavy | 4.4 | 5.4 | 7.6 |
-| Closest Pair | random | 9.0 | 12.0 | 16.0 |
-| Closest Pair | sorted | 9.0 | 12.0 | 16.0 |
-| Closest Pair | reverse | 9.0 | 12.0 | 16.0 |
-| Closest Pair | duplicate-heavy | 9.0 | 12.0 | 16.0 |
-
-![Running time versus input size](docs/plots/time_vs_n.png)
-
-![Maximum recursion depth versus input size](docs/plots/depth_vs_n.png)
+![Recursion depth vs input size](docs/plots/depth_vs_n.png)
 
 ## Discussion
 
-1. **Do the results match the theory?** Broadly, yes. As `n` grows, MergeSort, QuickSort, and Closest Pair stay practical at 20,000 items, while selection needs less work because it searches only one side. Random selection took 0.3252 ms at 2,000 items and 2.5143 ms at 20,000 items. The short runs are too noisy to use as exact proofs of a growth rate.
-2. **How does input structure matter?** Sorted input helps this MergeSort because it can skip merges: at 20,000 items it took 0.2432 ms, compared with 5.0908 ms on random input. QuickSort's random pivot prevents a sorted input from always choosing a bad partition. Its three-way partition is especially useful for duplicates: the 20,000-item duplicate-heavy case took 0.6094 ms and reached depth 2. Point order also affects the initial x-sort, even though all point sets are sorted inside the algorithm.
-3. **Why recurse on QuickSort's smaller side?** Each real recursive call handles at most half of the current partition. The larger side is handled by the loop, so the number of active calls remains logarithmic. This limits stack use even if the partition sizes are uneven.
-4. **Why is Median-of-Medians linear in the worst case?** A median from groups of five gives a pivot with a guaranteed number of values on both sides. After the pivot is found, the algorithm needs to search at most about 70% of the array. Three-way partitioning also removes all values equal to the pivot at once. The total work across the recursive sizes is therefore `O(n)`.
-5. **Why is Closest Pair faster than brute force on large inputs?** Brute force checks every pair, which means about 200 million pairs for 20,000 points. Divide and conquer checks only a small number of strip neighbors after solving each half. The random 20,000-point run averaged 25,845 distance calculations, although sorting and merging add other work not included in that count.
-6. **What practical factors affect the results?** JVM warm-up and JIT compilation, memory cache behavior, garbage collection, random pivot choices, and background computer activity can all change times. This program uses one warm-up and five trials, so the tables show a useful comparison but are not a precise benchmark. For example, the first random Closest Pair cases include more warm-up effects than later cases.
+1. **Does theory match?** Generally yes, though short timings are noisy.
+2. **Does input structure matter?** Yes. At 20,000 items, sorted MergeSort took 0.2432 ms versus 5.0908 ms for random input. Three-way QuickSort handles duplicates well.
+3. **Why recurse on QuickSort's smaller part?** Each call handles at most half; looping over the rest keeps stack depth `O(log n)`.
+4. **Why is Median-of-Medians linear?** Groups of five discard a fixed fraction, leaving at most about 70%; total work is `O(n)`.
+5. **Why use divide and conquer for Closest Pair?** Brute force checks about 200 million pairs at 20,000 points. The strip checks only nearby points.
+6. **What affects timings?** JVM warm-up, JIT, cache, GC, random pivots, and other computer activity.
 
 ## Reflection
 
-This assignment helped me connect the recurrence equations to what the program actually does. The recursion-depth measurements were useful because they showed why using a loop for QuickSort's larger side matters. I also saw that an optimization like skipping an unnecessary merge can make sorted input much faster than the general `n log n` bound suggests.
-
-The hardest parts were keeping selection's partitions correct with duplicate values and maintaining y-order during Closest Pair recursion. Comparing with `Arrays.sort` and a simple brute-force distance method made those mistakes easier to find. Timing was less straightforward than correctness because very short Java runs vary from trial to trial.
+Measuring time and depth helped me understand the recurrences. I also saw why input order matters. The hardest parts were duplicates in selection and y-order in Closest Pair. `Arrays.sort` and brute force helped me check my code.
 
 ## Screenshots
 
-**Program output**
+The first two show saved run logs in kitty.
+
+Program output:
 
 ![Program output](docs/screenshots/program_output.png)
 
-**Test results**
+Test results:
 
 ![Test results](docs/screenshots/test_results.png)
 
-**Plots and CSV results**
+Plots and CSV:
 
 ![Plots and results](docs/screenshots/plots_and_results.png)
